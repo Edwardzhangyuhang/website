@@ -2,6 +2,14 @@ import React from 'react';
 
 import Switch from 'react-toggle-switch';
 
+import TableFooter from './TableFooter'
+
+import mqtt from 'mqtt';
+        
+const session='CFB5755A-DDAD-4D15-8CD5-F235B172BEFG';
+const gateway='31617708-69FD-4547-857D-B6D3580BF3BD';
+
+let client;
 
 class TableComplex extends React.Component {
 
@@ -11,116 +19,401 @@ class TableComplex extends React.Component {
 
         debugmode : false,
 
-        tableData : [
-    {
-        name: 'John Smith',
-        status: 'Employed',
-        checked: true,
-    },
-    {
-        name: 'Randal White',
-        status: 'Unemployed',
-    },
-    {
-        name: 'Stephanie Sanders',
-        status: 'Employed',
-        checked: true,
-    },
-    {
-        name: 'Steve Brown',
-        status: 'Employed',
-    },
-    {
-        name: 'Joyce Whitten',
-        status: 'Employed',
-    },
-    {
-        name: 'Samuel Roberts',
-        status: 'Employed',
-    },
-    {
-        name: 'Adam Moore',
-        status: 'Employed',
-    },
-    {
-        name: 'Adam Moore',
-        status: 'Employed',
-    },
-    {
-        name: 'Adam Moore',
-        status: 'Employed',
-    },
-    {
-        name: 'Adam Moore',
-        status: 'Employed',
-    },
-    {
-        name: 'Adam Moore',
-        status: 'Employed',
-    },
-    {
-        name: 'Adam Moore',
-        status: 'Employed',
-    },
-    {
-        name: 'Adam Moore',
-        status: 'Employed',
-    },
-    {
-        name: 'Adam Moore',
-        status: 'Employed',
-    },
-    {
-        name: 'Adam Moore',
-        status: 'Employed',
-    },
-
-]
+        devicelist : [],
 
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeDebug = this.handleChangeDebug.bind(this);
+        this.handleChangeSelectAll = this.handleChangeSelectAll.bind(this);
+        this.turnOn = this.turnOn.bind(this);
+        this.turnOff = this.turnOff.bind(this);
+        this.delDevices = this.delDevices.bind(this);
+        this.reName = this.reName.bind(this);
     }
 
+    control(devices , cmd){
+
+        let timestamp = (new Date()).toLocaleString();
+
+        let controlcmd = {
+            "body":{
+                "devices":devices,
+                "cmd":{"onoff":cmd}
+            },
+            "head":{
+                "method":"B004",
+                "ts":timestamp,
+                "ukey":"langjun",
+                "proto_version":"V1.0",
+                "session":session
+            }
+        };
+        console.log(JSON.stringify(controlcmd));
+        return controlcmd;
+    }
+    
+    requestDevice(){
+
+        let timestamp = (new Date()).toLocaleString();
+
+        let msg = {
+            "head":{
+                "method":"B005",
+                "ts":timestamp,
+                "ukey":"langjun",
+                "session":session,
+                "proto_version":"V1.0",
+            }
+
+        };
+        
+        return msg;
+    }
+
+    turnOn(){
+
+        let devices = new Array();
+
+        this.state.devicelist.map( (row, index) => {
+
+            if (row.checked === true){
+
+                let device = row.mac;
+
+                devices.push(device);
+            }
+        });
+
+        if (devices.length === 0)
+        {
+            //console.log(devices.length);
+            alert("请选择设备");
+            return ;
+        }
+
+        //let device=["0022a30000014175"];
+        let cmd = 1;
+
+        client.publish(gateway,JSON.stringify(this.control(devices,cmd)));
+ 
+    }
+
+    turnOff(){
+
+        let devices = new Array();
+
+        this.state.devicelist.map( (row, index) => {
+
+            if (row.checked === true){
+
+                let device = row.mac;
+
+                devices.push(device);
+
+            }
+        });
+
+        if (devices.length === 0)
+        {
+            //console.log(devices.length);
+            alert("请选择设备");
+            return ;
+        }
+
+        //let device=["0022a30000014175"];
+        let cmd = 0;
+
+        client.publish(gateway,JSON.stringify(this.control(devices,cmd)));
+    }
+
+    handlemsg(msg){
+        if(msg.head.method === "B005")
+            this.setState({ devicelist : msg.body.devices});
+
+        return true;
+    }
+
+    delDevices(){
+
+        let timestamp = (new Date()).toLocaleString();
+
+        let devices = new Array();
+
+        this.state.devicelist.map( (row, index) => {
+
+            if (row.checked === true){
+
+                let device = row.mac;
+
+                devices.push(device);
+            }
+        });
+
+        if (devices.length === 0)
+        {
+            //console.log(devices.length);
+            alert("请选择设备");
+            return ;
+        }
+
+        let msg = {
+            "body":{
+                "devices":devices,
+            },
+            "head":{
+                "method":"B006",
+                "ts":timestamp,
+                "ukey":"langjun",
+                "proto_version":"V1.0",
+                "session":session
+            }
+        };
+
+        console.log(JSON.stringify(msg));
+        client.publish(gateway,JSON.stringify(msg));
+        return true;
+    }
+
+    reName(){
+        let newName = prompt("请输入名称");
+        
+        let timestamp = (new Date()).toLocaleString();
+
+        let devices = new Array();
+
+        this.state.devicelist.map( (row, index) => {
+
+            if (row.checked === true){
+
+                let device = {
+                    "name":newName,
+                    "mac":row.mac
+                };
+                devices.push(device);
+            }
+        });
+
+        if (devices.length === 0)
+        {
+            //console.log(devices.length);
+            alert("请选择设备");
+            return ;
+        }
+
+        let msg = {
+            "body":{
+                "devices":devices,
+            },
+            "head":{
+                "method":"B003",
+                "ts":timestamp,
+                "ukey":"langjun",
+                "proto_version":"V1.0",
+                "session":session
+            }
+        };
+
+        console.log(JSON.stringify(msg));
+        client.publish(gateway,JSON.stringify(msg));
+        return true;
+    }
+
+    openZigbeeNetwork(){
+
+        let timestamp = (new Date()).toLocaleString();
+
+        let msg = {
+            "head":{
+                "method":"3005",
+                "ts":timestamp,
+                "ukey":"langjun",
+                "proto_version":"V1.0",
+                "session":session
+            }
+        };
+
+        client.publish(gateway,JSON.stringify(msg));
+        return true;
+    }
+
+    componentWillMount(){
+
+        client=mqtt.connect('ws://192.168.1.66:9001');
+        client.on('connect',function() {
+                console.log("table connect success");
+                client.subscribe(session);
+                this.openZigbeeNetwork();
+                client.publish(gateway,JSON.stringify(this.requestDevice()));
+            }.bind(this)
+        );
+
+        client.on('error',function(error) {
+            console.log(error.toString());
+            alert("connect error!");
+            client.end();
+            }
+        );
+
+        client.on('message',function(topic, payload) {
+            //alert(payload.toString());
+            console.log("tables" + payload);
+            if(!JSON.parse(payload))
+                alert("recieve error msg!");
+            else
+                this.handlemsg(JSON.parse(payload));
+            //client.end();
+            }.bind(this)
+        );
+    }
 
     handleChange(e){
-        let checked = this.state.tableData;
+        let checked = this.state.devicelist;
         
         console.log("the checked:"+e.target.id);
 
         checked[e.target.id].checked=e.target.checked;
 
-        this.setState({tableData : checked});
+        this.setState({devicelist : checked});
+
     }
 
     handleChangeSelectAll(e){
-        let checked = this.state.tableData;
-
-        this.state.tableData.map( (row, index) => {
+        let checked = this.state.devicelist;
+        console.log("select all item");
+        this.state.devicelist.map( (row, index) => {
             checked[index].checked = e.target.checked;
         })
 
-        this.setState({ tableData : checked });
+        this.setState({ devicelist : checked });
     }
 
+    enabledebug(devices,cmd){
+
+         let timestamp = (new Date()).toLocaleString();
+         
+         let method;
+         if(cmd === 1)
+         {
+             method = 'B001';
+         }
+         else
+         {
+             method = 'B002';
+         }
+
+         let debugmsg = {
+            "body":{
+                "devices":devices,
+                "qdebug":cmd
+            },
+            "head":{
+                "method":method,
+                "ts":timestamp,
+                "ukey":"langjun",
+                "proto_version":"V1.0",
+                "session":session
+            }
+        };
+        
+        console.log(JSON.stringify(debugmsg));
+
+        return debugmsg;
+
+    }
     handleChangeDebug(e){
 
+        if(e.target.checked === true)
+        { 
+            let devices = new Array();
+
+            this.state.devicelist.map( (row, index) => {
+
+                if (row.checked === true){
+
+                    let device = row.mac;
+
+                    devices.push(device);
+
+                }
+            });
+            
+            //let device=["0022a30000014175"];
+
+            client.publish(gateway,JSON.stringify(this.enabledebug(devices,0)));
+        }
+        else
+        {
+            if(!confirm("退出调试模式?"))
+                return true;
+
+            let devices = new Array();
+
+            this.state.devicelist.map( (row, index) => {
+
+                if (row.checked === true){
+
+                    let device = row.mac;
+
+                    devices.push(device);
+
+                }
+            });
+
+            //let device=["0022a30000014175"];
+            client.publish(gateway,JSON.stringify(this.enabledebug(devices,1)));
+        }
+
+
         this.setState({ debugmode : e.target.checked });
+
+        //client.publish(gateway,JSON.stringify(this.requestDevice()));
     }
 
     showtables() {
-        return this.state.tableData.map( (row, index) => {
 
-               const name = row.name ? row.name : '/';
+        if(this.state.devicelist === null)
+            return;
+
+        return this.state.devicelist.map( (row, index) => {
+
+               const name = row.name ? row.name : '路灯'+(index+1);
                const mac = row.mac ? row.mac : '/';
-               const online = row.online ? row.online : '/';
-               const status = row.status ? row.status : '/';
+               //const online = row.status.online ? row.online : '/';
+               //const status = row.status.status ? (row.status.status ? ON : OFF) : '/';
+               let status;
+               let online;
+               if(this.state.debugmode === true )
+               {
+                   if (row.status.debug === 1)
+                       status = row.status.intensity ? row.status.intensity : 0;
+                   else
+                       return;
+                   
+               }
+               else
+               {
+                   if (row.status.status === 1)
+                       status = 'ON';
+                   else if(row.status.status === 0)
+                       status = 'OFF';
+                   else
+                       status = '/';
+               }
+
+               
+
+               if (row.status.online === 1)
+                   online = '在线';
+               else if(row.status.online === 0)
+                   online = '离线';
+               else
+                   online = '/';
 
                return (
                <tr key={ index }>
-               <td><input type="checkbox" id={ index } checked={row.checked} onChange={this.handleChange.bind(this)}/></td>
-               <td>{index}</td>
+               <td><input type="checkbox" className="checkbox" id={ index } checked={row.checked} onChange={this.handleChange.bind(this)}/></td>
+               <td>{index+1}</td>
                <td>{name}</td>
                <td>{mac}</td>
                <td>{online}</td>
@@ -133,14 +426,11 @@ class TableComplex extends React.Component {
 
         let content;
 
-        //if(this.state.selectall === true)
-            //this.selectAllitem();
-
         content = this.showtables();
 
         return (
-            <div>
-                <h2>设备列表</h2>
+            <div id="tablelist">
+                <h3>设备列表</h3>
                 <table>
                     <tbody>
                     <tr>
@@ -152,20 +442,7 @@ class TableComplex extends React.Component {
                         <th>功能状态</th>
                     </tr>
                     { content }
-                    <tr>
-                        <td><input type="checkbox" onChange={this.handleChangeSelectAll.bind(this)}/></td>
-                        <td>全选</td>
-                        <td><button className="bt-black">导入</button></td>
-                        <td><p>调试模式</p>
-                        <label className="switch">
-                            <input className="switch-input" checked={this.state.debugmode} type="checkbox" onChange={this.handleChangeDebug.bind(this)}/>
-                            <span className="switch-label" data-on="On" data-off="Off"></span>
-                            <span className="switch-handle"></span>
-                        </label>
-                        </td>
-                        <td><button className="bt-red">删除</button></td>
-                        <td><button className="bt-black">重命名</button></td>
-                    </tr>
+                    <TableFooter name="debugmode" status={this.state.debugmode} handleChangeSelectAll={this.handleChangeSelectAll} handleChangeDebug={this.handleChangeDebug} turnOn={this.turnOn} turnOff={this.turnOff} delDevices={this.delDevices} reName={this.reName} />
                     </tbody>
                 </table>
             </div>

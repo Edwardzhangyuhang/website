@@ -1,5 +1,6 @@
 import React from 'react';
 import mqtt from 'mqtt';
+import { Router, Route, hashHistory, IndexRoute } from 'react-router';
 
 class Login extends React.Component {
 
@@ -8,50 +9,79 @@ class Login extends React.Component {
         
         this.state = {
             user:'',
-            password:''
+            password:'',
         }
         this.handleChange = this.handleChange.bind(this);
         this.login_click = this.login_click.bind(this);
+
     }
     
     handleChange(e){
-        
-        //var newState={};
-        //newState[e.target.name]= e.target.value
-        this.setState({[e.target.name]: e.target.value});
 
+        this.setState({[e.target.name]: e.target.value});
+    }
+
+    handlemsg(msgs){
+        
+        let message;
+
+        message = JSON.parse(msgs);
+
+        console.log("method" + message.head.method + "   status" + message.head.status);
+        if(message.head.method === "A012" && message.head.status === 0)
+        {
+            hashHistory.push('/react');
+        }
+        else if(message.head.method === "A012" && message.head.status !== 0)
+            alert("login fail");
     }
 
     login_click(){
         let client;
-
+        let timestamp = (new Date()).toLocaleString();
         let msg = {
-            "user":this.state.user,
-            "password":this.state.password
+            "body":{
+                "user":{
+                    "username" : this.state.user,
+                    "password" : this.state.password
+                }
+            },
+            "head":{
+                "method":"A012",
+                "proto_version":"V1.0",
+                "ukey":"langjun",
+                "ts":timestamp
+            }   
         };
 
-        console.log(msg);
+        if (this.state.user === '' || this.state.password === '')
+        {
+            alert("帐号密码不能为空!");
+            return false;
+        }
 
-        client=mqtt.connect('ws://172.168.1.100:9001');
+        client=mqtt.connect('ws://192.168.1.66:9001');
         client.on('connect',function() {
-            //alert('connect success');
-            //client.subscribe('hello');
             console.log("connect success");
-            console.log(msg);
-            client.publish('hello',JSON.stringify(msg));
+            client.subscribe('langjun');
+            client.publish('DFB5755C-EDA7-4D15-8CD5-B235B172BEAB',JSON.stringify(msg));
+            //hashHistory.push('/react');
             }
         );
 
         client.on('error',function(error) {
             console.log(error.toString());
+            alert("Login Fail!");
             client.end();
             }
         );
 
         client.on('message',function(topic, payload) {
-            alert(payload.toString());
-            client.end();
-            }
+            //alert(payload.toString());
+            console.log(payload.toString());
+            this.handlemsg(payload.toString());
+            //client.end();
+            }.bind(this)
         );
     }
 
