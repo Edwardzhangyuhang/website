@@ -10,7 +10,7 @@ class TableFooter extends React.Component{
 
         if(this.props.status === false)
         {
-            bt1 = <td><input type="file" /></td>;
+            bt1 = <td><input type="file" onChange={ this.props.reNames } /></td>;
             bt2 = <td><button className="bt-red" onClick={this.props.delDevices}>删除</button></td>;
             bt3 = <td><button className="bt-black" onClick={this.props.reName}>重命名</button></td>;
         }

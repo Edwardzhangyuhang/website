@@ -7,7 +7,8 @@ import TableFooter from './TableFooter'
 import mqtt from 'mqtt';
         
 const session='CFB5755A-DDAD-4D15-8CD5-F235B172BEFG';
-const gateway='31617708-69FD-4547-857D-B6D3580BF3BD';
+//const gateway='31617708-69FD-4547-857D-B6D3580BF3BD';
+const gateway = 'DCAD4E32-E6F7-4C40-8F1F-D1A9B400AB07';
 
 let client;
 
@@ -30,6 +31,7 @@ class TableComplex extends React.Component {
         this.turnOff = this.turnOff.bind(this);
         this.delDevices = this.delDevices.bind(this);
         this.reName = this.reName.bind(this);
+        this.reNames = this.reNames.bind(this);
     }
 
     control(devices , cmd){
@@ -175,10 +177,29 @@ class TableComplex extends React.Component {
         return true;
     }
 
+    nameMsg(devices){
+
+        let timestamp = (new Date()).toLocaleString();
+
+        let msg = {
+            "body":{
+                "devices":devices,
+            },
+            "head":{
+                "method":"B003",
+                "ts":timestamp,
+                "ukey":"langjun",
+                "proto_version":"V1.0",
+                "session":session
+            }
+        };
+
+        return msg;
+
+    }
+
     reName(){
         let newName = prompt("请输入名称");
-        
-        let timestamp = (new Date()).toLocaleString();
 
         let devices = new Array();
 
@@ -201,21 +222,50 @@ class TableComplex extends React.Component {
             return ;
         }
 
-        let msg = {
-            "body":{
-                "devices":devices,
-            },
-            "head":{
-                "method":"B003",
-                "ts":timestamp,
-                "ukey":"langjun",
-                "proto_version":"V1.0",
-                "session":session
-            }
-        };
+        let msg = nameMsg(devices);
 
         console.log(JSON.stringify(msg));
         client.publish(gateway,JSON.stringify(msg));
+        return true;
+    }
+
+    reNames(e){
+
+        let result = new FileReader();
+        console.log("select file:", e.target.files[0]);
+
+        let text = result.readAsText(e.target.files[0], "utf-8");
+
+        let names;
+
+        result.onload = function(e){
+
+            console.log(e.target.result);
+
+            names = e.target.result;
+
+            console.log("type of names:",typeof(names));
+
+            if (!JSON.parse(names))
+            {
+                alert("File content error!");
+                return false;
+            }
+
+            let msg = this.nameMsg(JSON.parse(names));
+
+            console.log(JSON.stringify(msg));
+            
+            if( !confirm("Sure to upload the rename list!"))
+                console.log("No");
+            else
+                console.log("Yes");
+            //client.publish(gateway,JSON.stringify(msg));
+            
+        }.bind(this);
+
+
+
         return true;
     }
 
@@ -439,10 +489,10 @@ class TableComplex extends React.Component {
                         <th>设备名称</th>
                         <th>MAC地址</th>
                         <th>设备状态</th>
-                        <th>功能状态</th>
+                        <th>功能状态(照度值)</th>
                     </tr>
                     { content }
-                    <TableFooter name="debugmode" status={this.state.debugmode} handleChangeSelectAll={this.handleChangeSelectAll} handleChangeDebug={this.handleChangeDebug} turnOn={this.turnOn} turnOff={this.turnOff} delDevices={this.delDevices} reName={this.reName} />
+                    <TableFooter name="debugmode" status={this.state.debugmode} handleChangeSelectAll={this.handleChangeSelectAll} handleChangeDebug={this.handleChangeDebug} turnOn={this.turnOn} turnOff={this.turnOff} delDevices={this.delDevices} reName={this.reName} reNames={this.reNames}/>
                     </tbody>
                 </table>
             </div>
