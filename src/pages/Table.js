@@ -199,7 +199,7 @@ class TableComplex extends React.Component {
     }
 
     reName(){
-        let newName = prompt("请输入名称");
+        let newName = prompt("请输入名称","请输入名称");
 
         let devices = new Array();
 
@@ -222,7 +222,7 @@ class TableComplex extends React.Component {
             return ;
         }
 
-        let msg = nameMsg(devices);
+        let msg = this.nameMsg(devices);
 
         console.log(JSON.stringify(msg));
         client.publish(gateway,JSON.stringify(msg));
@@ -232,7 +232,7 @@ class TableComplex extends React.Component {
     reNames(e){
 
         let result = new FileReader();
-        console.log("select file:", e.target.files[0]);
+        //console.log("select file:", e.target.files[0]);
 
         let text = result.readAsText(e.target.files[0], "utf-8");
 
@@ -240,11 +240,11 @@ class TableComplex extends React.Component {
 
         result.onload = function(e){
 
-            console.log(e.target.result);
+            //console.log(e.target.result);
 
             names = e.target.result;
 
-            console.log("type of names:",typeof(names));
+            //console.log("type of names:",typeof(names));
 
             if (!JSON.parse(names))
             {
@@ -257,10 +257,15 @@ class TableComplex extends React.Component {
             console.log(JSON.stringify(msg));
             
             if( !confirm("Sure to upload the rename list!"))
+            {
                 console.log("No");
+            }
             else
+            {
+                client.publish(gateway,JSON.stringify(msg));
                 console.log("Yes");
-            //client.publish(gateway,JSON.stringify(msg));
+            }
+            e.target.value = "";
             
         }.bind(this);
 
