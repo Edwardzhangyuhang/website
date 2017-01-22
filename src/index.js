@@ -13,7 +13,9 @@ ReactDOM.render(
         <Route path="/react" component={ Index }>
             <IndexRoute component= { TableComplex }/>
         </Route>
-        <Route path="/menu" component={TabMenu}/>
+        <Route path="/menu" component={Index}>
+           <IndexRoute component= { TabMenu }/>
+        </Route>
     </Router>,
     document.getElementById('login')
 );

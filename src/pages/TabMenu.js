@@ -14,81 +14,61 @@ class TabMenu extends React.Component{
         super(props);
         
         this.state = {
-            gateway:''
+            active:'groupctrl',
+            menu_item:[
+                {
+                    'id':'groupctrl',
+                    'name':'监控'
+                },
+                {
+                    'id':'monitor',
+                    'name':'组控'
+                }
+            ]
         }
-
-    }
-
-
-    recievemsg(msg){
-        this.setState({ gateway : msg });
-    }
-
-    componentWillMount(){
-
         
-        let timestamp = (new Date()).toLocaleString();
-        console.log(timestamp);
-        let requestgw = {
-            "body":{
-                "username":"123",
-                "password":"123"
-            },
-            "head":{
-                "method":"1010",
-                "ts":timestamp,
-                "ukey":"langjun",
-                "proto_version":"V1.0",
-            }
-
-        };
+        this.handleActive = this.handleActive.bind(this);
+    }
+    
+    handleActive(e){
+        console.log("click"+e.target.id);
+        this.setState({active : e.target.id})
+    }
+    
+    showMenu(){
         
-        let test1 = [1,2,3,4,5];
-        let test2 = 1;
-        let test3 = {
-
-            "devices":test1,
-            "cmd":test2,
-            "session":session
-
-        };
-
-        console.log(test1);
-        console.log(test2);
-        console.log(JSON.stringify(test3));
-        client=mqtt.connect('ws://192.168.1.66:9001');
-        client.on('connect',function() {
-            console.log("tabmenu connect success");
-            client.subscribe('DFB5755C-EDA7-4D15-8CD5-B235B172BEAB');
-            //client.publish('DFB5755C-EDA7-4D15-8CD5-B235B172BEAB',JSON.stringify(requestgw));
-
-            }
-        );
-
-        client.on('error',function(error) {
-            console.log(error.toString());
-            alert("Login Fail!");
-            client.end();
-            }
-        );
-
-        client.on('message',function(topic, payload) {
-            //alert(payload.toString());
-            console.log("tabmenu"+payload.toString());
-            this.recievemsg(payload.toString());
-            //client.end();
-            }.bind(this)
-        );
+        return this.state.menu_item.map((row, index) => {
+            
+            let active;
+            
+            if(this.state.active === row.id)
+                active = 'active_view';
+                
+            return (
+                <li key={row.id} id={row.id} onClick={this.handleActive.bind(this)}>
+                    <a id={row.id} className="item">{row.name}</a>
+                    <div className={active} />
+                </li>
+            );
+        });
     }
     
     render() {
-
+        
+        let content,menu;
+        
+        menu = this.showMenu();
+        if(this.state.active === 'monitor')
+            content= <TableComplex />;
+        else if(this.state.active === 'groupctrl')
+            content= <TableComplex />;
+        
         return(
             <div id="maincontent">	
-            <div id="menu">
-                <li><a>网关1</a></li>
-            </div>
-            <TableComplex/>
+                <div id="main-menu">
+                    {menu}
+                </div>
+                {content}
             </div>
         );
     };

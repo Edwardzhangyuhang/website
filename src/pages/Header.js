@@ -4,7 +4,7 @@ class Header extends React.Component {
 
     render() {
         return (
-            <div>
+            <div id="header">
                 <div className='header-left'/>
                 <div className='header-right'></div>
                 <span className='title'>WEB后台系统</span>
