@@ -454,7 +454,7 @@ class TabMenu extends React.Component{
         client.publish(gateway,JSON.stringify(cmd));
 
         console.log("send ctrl cmd : "+JSON.stringify(cmd));
-        //this.setState({dialog : "default"});
+        this.setState({dialog : "default"});
     }
 
     showDialogSetValue(){
