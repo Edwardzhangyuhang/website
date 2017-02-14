@@ -198,7 +198,14 @@ class TabMenu extends React.Component{
 
         client.publish(gateway,JSON.stringify(this.requestDevice()));
 
-        let name = prompt("创建新灯控组","灯组"+(this.state.group_list.length+1));
+        let group_list = this.state.group_list;
+
+        if(group_list === null)
+        {
+            group_list = [];
+        }
+
+        let name = prompt("创建新灯控组","灯组"+(group_list.length+1));
 
         if(name === null || name === "")
         {
