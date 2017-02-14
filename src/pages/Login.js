@@ -30,7 +30,7 @@ class Login extends React.Component {
         console.log("method" + message.head.method + "   status" + message.head.status);
         if(message.head.method === "A012" && message.head.status === 0)
         {
-            hashHistory.push('/react');
+            hashHistory.push('/menu');
         }
         else if(message.head.method === "A012" && message.head.status !== 0)
             alert("帐号或密码错误");
@@ -80,7 +80,7 @@ class Login extends React.Component {
             //alert(payload.toString());
             console.log(payload.toString());
             this.handlemsg(payload.toString());
-            //client.end();
+            client.end();
             }.bind(this)
         );
     }
