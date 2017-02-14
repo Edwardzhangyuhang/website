@@ -33,7 +33,7 @@ class Login extends React.Component {
             hashHistory.push('/react');
         }
         else if(message.head.method === "A012" && message.head.status !== 0)
-            alert("login fail");
+            alert("帐号或密码错误");
     }
 
     login_click(){
@@ -71,7 +71,7 @@ class Login extends React.Component {
 
         client.on('error',function(error) {
             console.log(error.toString());
-            alert("Login Fail!");
+            alert("连接服务器失败");
             client.end();
             }
         );

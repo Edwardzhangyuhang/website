@@ -17,7 +17,7 @@ class TableFooter extends React.Component{
         else if(this.props.status === true)
         {
             bt1 = <td></td>;
-            bt2 = <td><button className="bt-blue" onClick={this.props.turnOn}>ON</button></td>;
+            bt2 = <td><button className="bt-blue" onClick={this.props.turnOn}>控制</button></td>;
             bt3 = <td><button className="bt-blue" onClick={this.props.turnOff}>OFF</button></td>;
 
         }

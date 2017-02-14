@@ -2,7 +2,7 @@ import React from 'react';
 
 import Switch from 'react-toggle-switch';
 
-import TableFooter from './TableFooter'
+import TableFooter from './TableFooter';
 
 import mqtt from 'mqtt';
         
@@ -19,8 +19,9 @@ class TableComplex extends React.Component {
         this.state = {
 
         debugmode : false,
-
+        selectall : false,
         devicelist : [],
+        ctrlcmd: {}
 
         };
 
@@ -38,10 +39,13 @@ class TableComplex extends React.Component {
 
         let timestamp = (new Date()).toLocaleString();
 
+        let value;
+
         let controlcmd = {
             "body":{
                 "devices":devices,
-                "cmd":{"onoff":cmd}
+                "cmd":{"onoff":cmd},
+                "tmpctrl":0
             },
             "head":{
                 "method":"B004",
@@ -89,16 +93,16 @@ class TableComplex extends React.Component {
 
         if (devices.length === 0)
         {
-            //console.log(devices.length);
             alert("请选择设备");
             return ;
         }
 
-        //let device=["0022a30000014175"];
         let cmd = 1;
 
-        client.publish(gateway,JSON.stringify(this.control(devices,cmd)));
- 
+        //client.publish(gateway,JSON.stringify(this.control(devices,cmd)));
+        this.setState({ ctrlcmd : this.control(devices,cmd)})
+        this.props.showDialogSetValue();
+
     }
 
     turnOff(){
@@ -118,12 +122,10 @@ class TableComplex extends React.Component {
 
         if (devices.length === 0)
         {
-            //console.log(devices.length);
             alert("请选择设备");
             return ;
         }
 
-        //let device=["0022a30000014175"];
         let cmd = 0;
 
         client.publish(gateway,JSON.stringify(this.control(devices,cmd)));
@@ -201,6 +203,11 @@ class TableComplex extends React.Component {
     reName(){
         let newName = prompt("请输入名称","请输入名称");
 
+        if(newName === null || newName === "")
+        {
+            return true;
+        }
+
         let devices = new Array();
 
         this.state.devicelist.map( (row, index) => {
@@ -256,7 +263,7 @@ class TableComplex extends React.Component {
 
             console.log(JSON.stringify(msg));
             
-            if( !confirm("Sure to upload the rename list!"))
+            if( !confirm("确定上传命名文件？"))
             {
                 console.log("No");
             }
@@ -272,6 +279,7 @@ class TableComplex extends React.Component {
 
 
         return true;
+
     }
 
     openZigbeeNetwork(){
@@ -497,7 +505,8 @@ class TableComplex extends React.Component {
                         <th>功能状态(照度值)</th>
                     </tr>
                     { content }
-                    <TableFooter name="debugmode" status={this.state.debugmode} handleChangeSelectAll={this.handleChangeSelectAll} handleChangeDebug={this.handleChangeDebug} turnOn={this.turnOn} turnOff={this.turnOff} delDevices={this.delDevices} reName={this.reName} reNames={this.reNames}/>
+                    <TableFooter name="debugmode" status={this.state.debugmode} handleChangeSelectAll={this.handleChangeSelectAll} handleChangeDebug={this.handleChangeDebug} 
+                    turnOn={this.turnOn} turnOff={this.turnOff} delDevices={this.delDevices} reName={this.reName} reNames={this.reNames}/>
                     </tbody>
                 </table>
             </div>
