@@ -133,7 +133,10 @@ class TableComplex extends React.Component {
 
     handlemsg(msg){
         if(msg.head.method === "B005")
+        {
             this.setState({ devicelist : msg.body.devices});
+            this.setState({ selectall : false });
+        }
 
         return true;
     }
@@ -343,9 +346,17 @@ class TableComplex extends React.Component {
 
     handleChangeSelectAll(e){
         let checked = this.state.devicelist;
+        let debug = this.state.debugmode;
+
+        this.setState({selectall : e.target.checked})
+
         console.log("select all item");
+
         this.state.devicelist.map( (row, index) => {
-            checked[index].checked = e.target.checked;
+            if((debug === true && row.status.debug === 1))
+                checked[index].checked = e.target.checked;
+            else
+                checked[index].checked = e.target.checked;
         })
 
         this.setState({ devicelist : checked });
@@ -506,7 +517,7 @@ class TableComplex extends React.Component {
                     </tr>
                     { content }
                     <TableFooter name="debugmode" status={this.state.debugmode} handleChangeSelectAll={this.handleChangeSelectAll} handleChangeDebug={this.handleChangeDebug} 
-                    turnOn={this.turnOn} turnOff={this.turnOff} delDevices={this.delDevices} reName={this.reName} reNames={this.reNames}/>
+                    turnOn={this.turnOn} turnOff={this.turnOff} delDevices={this.delDevices} reName={this.reName} reNames={this.reNames} selectall={this.state.selectall}/>
                     </tbody>
                 </table>
             </div>

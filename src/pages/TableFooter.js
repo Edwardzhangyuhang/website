@@ -25,7 +25,7 @@ class TableFooter extends React.Component{
         console.log("table footer component render");
         return (
             <tr>
-                <td><input type="checkbox" className="checkbox" onChange={this.props.handleChangeSelectAll}/></td>
+                <td><input type="checkbox" className="checkbox" checked={this.props.selectall} onChange={this.props.handleChangeSelectAll}/></td>
                 <td>全选</td>
                 { bt1 }
                 <td><p>调试模式</p>
