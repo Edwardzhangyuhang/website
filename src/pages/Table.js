@@ -468,9 +468,9 @@ class TableComplex extends React.Component {
                else
                {
                    if (row.status.status === 1)
-                       status = 'ON';
+                       status = '开';
                    else if(row.status.status === 0)
-                       status = 'OFF';
+                       status = '关';
                    else
                        status = '/';
                }
@@ -502,8 +502,21 @@ class TableComplex extends React.Component {
 
         content = this.showtables();
 
+        let style = {
+            switch : {
+                marginTop: 20,
+                float: "right",
+                zIndex: 97
+            }
+        };
         return (
             <div id="tablelist">
+                <label className="switch" style={style.switch}>
+                    <p className="switch-title">模式切换</p>
+                    <input className="switch-input" checked={this.state.debugmode} type="checkbox" onChange={this.handleChangeDebug}/>
+                    <span  className="switch-label" data-on="手动" data-off="自动"></span>
+                    <span  className="switch-handle"></span>
+                </label>
                 <h3>设备列表</h3>
                 <table>
                     <tbody>

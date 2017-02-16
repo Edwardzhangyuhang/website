@@ -23,12 +23,12 @@ class GroupCtrlTable extends React.Component {
             if(row.status === 1)
             {
                 btstyle = "bt-blue";
-                status = "ON";
+                status = "开";
             }
             else
             {
                 btstyle = "bt-black";
-                status = "OFF";
+                status = "关";
             }
 
             return (

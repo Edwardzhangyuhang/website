@@ -19,7 +19,7 @@ class TabMenu extends React.Component{
         super(props);
         
         this.state = {
-            active:'groupctrl',
+            active:'monitor',
             menu_item:[
                 {
                     'id':'monitor',
@@ -215,6 +215,9 @@ class TabMenu extends React.Component{
         let addgroup = this.state.add_group;
 
         addgroup.groups = name;
+        addgroup.devices = [];
+        addgroup.value = 0;
+        addgroup.delay = 0;
         this.setState({add_group : addgroup});
 
         this.setState({dialog : 'select_devices'});

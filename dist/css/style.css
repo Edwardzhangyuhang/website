@@ -144,8 +144,9 @@ table th{
     border-color: gray;
     border-style: solid;
     margin-bottom: 1px;
-    background-color:black;
+    background-color:#363c4c;
     color:white;
+    height:50px;
 }
 
 table tr{
@@ -153,6 +154,7 @@ table tr{
     border-color: gray;
     border-style: solid;
     margin-bottom: 0px;
+    height:50px;
 }
 
 table td{
@@ -160,6 +162,10 @@ table td{
     border-color: gray;
     border-style: solid;
     margin-bottom: 0px;
+}
+
+TableFooter td{
+    border-width: 0px;
 }
 
 .bt-red{
@@ -293,6 +299,7 @@ li#groupctrl{
     opacity: 0.0;
     top: 30%;
     left: 15%;
+    overflow: auto;
 }
 
 .setvaluedialog{
